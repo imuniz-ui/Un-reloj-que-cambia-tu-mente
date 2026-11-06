@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CosmoClock · Reloj Anti-Ansiedad con micro:bit</title>
+  <meta name="description"
+    content="Proyecto escolar: reloj medidor de ansiedad con micro:bit. Una solución galáctica para el bienestar emocional." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- STARS CANVAS -->
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- FLOATING PARTICLES -->
+  <div class="particles-container" id="particles"></div>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <span class="logo-icon">⟡</span>
+        <span class="logo-text">CosmoClock</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#inicio" class="nav-link">Inicio</a></li>
+        <li><a href="#proyecto" class="nav-link" onclick="switchProjectTab('info')">El Proyecto</a></li>
+        <li><a href="#imagenes" class="nav-link" onclick="switchProjectTab('images')">Imágenes</a></li>
+        <li><a href="#como-funciona" class="nav-link">Cómo Funciona</a></li>
+        <li><a href="#instructivo" class="nav-link">Instructivo</a></li>
+        <li><a href="#registro" class="nav-link">Registro</a></li>
+        <li><a href="#equipo" class="nav-link">Equipo</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="inicio">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Proyecto Tecnológico · 2026
+      </div>
+      <h1 class="hero-title">
+        Un reloj que<br />
+        <span class="gradient-text">entiende tu mente</span>
+      </h1>
+      <p class="hero-subtitle">
+        Diseñamos un dispositivo con <strong>micro:bit</strong> capaz de detectar signos de ansiedad
+        en tiempo real. Como una estrella que siempre está ahí, tu bienestar merece atención constante.
+      </p>
+      <div class="hero-buttons">
+        <a href="#proyecto" class="btn btn-primary" onclick="switchProjectTab('info')">
+          <span>Explorar el proyecto</span>
+          <span class="btn-icon">→</span>
+        </a>
+        <a href="#imagenes" class="btn btn-secondary-pill" onclick="switchProjectTab('images')">
+          <span class="pill-dot">✦</span>
+          <span>Imágenes</span>
+        </a>
+        <a href="#como-funciona" class="btn btn-ghost">Ver cómo funciona</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Monitoreo</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number">3</span>
+          <span class="stat-label">Integrantes</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number">∞</span>
+          <span class="stat-label">Curiosidad</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="device-container" id="device-container">
+        <div class="device-glow"></div>
+
+        <!-- Hint interactivo para tocar el reloj -->
+        <button class="watch-hint-badge" id="watch-hint" onclick="toggleWatchComponents()" aria-label="Tocar el reloj para ver partes">
+          <span class="hint-pulse"></span>
+          <span class="hint-icon">👆</span>
+          <span class="hint-text">¡Toca el reloj para ver sus partes!</span>
+          <span class="hint-sparkle">✦</span>
+        </button>
+
+        <!-- PURPLE WATCH (replica del reloj real) -->
+        <div class="watch-wrap" id="watch-device" onclick="toggleWatchComponents()" role="button" tabindex="0" title="Toca el reloj para ver sus componentes">
+          <!-- Hotspots visuales de cada parte -->
+          <div class="watch-hotspot hotspot-luz" data-part="luz" title="Sensor de luz"></div>
+          <div class="watch-hotspot hotspot-sonido" data-part="sonido" title="Sensor de sonido"></div>
+          <div class="watch-hotspot hotspot-botones-a" data-part="botones" title="Botón A"></div>
+          <div class="watch-hotspot hotspot-botones-b" data-part="botones" title="Botón B"></div>
+          <div class="watch-hotspot hotspot-led" data-part="led" title="Luz LED"></div>
+          <div class="watch-hotspot hotspot-movimiento" data-part="movimiento" title="Sensor de movimiento"></div>
+          <div class="watch-hotspot hotspot-ubicacion" data-part="ubicacion" title="Sensor de ubicación"></div>
+
+          <!-- Banda superior -->
+          <div class="watch-band watch-band-top"></div>
+
+          <!-- Cuerpo del reloj -->
+          <div class="watch-body">
+            <!-- Botón A (izquierda) -->
+            <div class="watch-side-btn watch-btn-left" onclick="event.stopPropagation(); setState('calm');" title="Pulsar Botón A">A</div>
+
+            <!-- Carcasa principal -->
+            <div class="watch-case">
+              <!-- Sensor frontal -->
+              <div class="watch-sensor-dot"></div>
+
+              <!-- Pantalla -->
+              <div class="watch-screen">
+                <div class="led-grid" id="led-grid"></div>
+                <div class="watch-status" id="status-val">😌 CALMA</div>
+              </div>
+
+              <!-- Pines dorados (micro:bit) -->
+              <div class="watch-pins-strip">
+                <div class="pin-hole"><span>0</span></div>
+                <div class="pin-hole"><span>1</span></div>
+                <div class="pin-hole"><span>2</span></div>
+                <div class="pin-hole pin-small"><span>3V</span></div>
+                <div class="pin-hole pin-small"><span>GND</span></div>
+              </div>
+            </div>
+
+            <!-- Botón B (derecha) -->
+            <div class="watch-side-btn watch-btn-right" onclick="event.stopPropagation(); setState('high');" title="Pulsar Botón B">B</div>
+          </div>
+
+          <!-- Banda inferior -->
+          <div class="watch-band watch-band-bottom">
+            <div class="band-holes">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="band-buckle"></div>
+          </div>
+        </div>
+
+        <!-- ============ PARTES DESPLEGABLES DEL RELOJ ============ -->
+        <div class="watch-parts-panel" id="watch-parts-panel">
+          <!-- 1. Sensor de Sonido (Izquierda Arriba) -->
+          <div class="watch-part-item part-left part-sonido" data-part="sonido" onmouseenter="highlightPart('sonido')" onmouseleave="unhighlightPart()">
+            <div class="part-card">
+              <div class="part-icon-wrap" style="--c: #38bdf8">🎙️</div>
+              <div class="part-content">
+                <span class="part-chip">Micrófono</span>
+                <h4 class="part-title">Sensor de sonido</h4>
+                <p class="part-desc">Monitorea el ruido ambiental y detecta patrones de respiración agitada o hiperventilación.</p>
+              </div>
+            </div>
+            <div class="part-line"></div>
+          </div>
+
+          <!-- 2. Botones de Activación (Izquierda Centro) -->
+          <div class="watch-part-item part-left part-botones" data-part="botones" onmouseenter="highlightPart('botones')" onmouseleave="unhighlightPart()">
+            <div class="part-card">
+              <div class="part-icon-wrap" style="--c: #a855f7">🔘</div>
+              <div class="part-content">
+                <span class="part-chip">Interactividad</span>
+                <h4 class="part-title">Botones de activación</h4>
+                <p class="part-desc">Pulsadores físicos laterales A y B para registrar manualmente momentos de calma o picos de ansiedad.</p>
+              </div>
+            </div>
+            <div class="part-line"></div>
+          </div>
+
+          <!-- 3. Sensor de Movimiento (Izquierda Abajo) -->
+          <div class="watch-part-item part-left part-movimiento" data-part="movimiento" onmouseenter="highlightPart('movimiento')" onmouseleave="unhighlightPart()">
+            <div class="part-card">
+              <div class="part-icon-wrap" style="--c: #34d399">🏃</div>
+              <div class="part-content">
+                <span class="part-chip">Acelerómetro</span>
+                <h4 class="part-title">Sensor de movimiento</h4>
+                <p class="part-desc">Capta temblores en las manos, agitación o hiperactividad motora propia de una crisis de estrés.</p>
+              </div>
+            </div>
+            <div class="part-line"></div>
+          </div>
+
+          <!-- 4. Sensor de Luz (Derecha Arriba) -->
+          <div class="watch-part-item part-right part-luz" data-part="luz" onmouseenter="highlightPart('luz')" onmouseleave="unhighlightPart()">
+            <div class="part-line"></div>
+            <div class="part-card">
+              <div class="part-icon-wrap" style="--c: #fbbf24">☀️</div>
+              <div class="part-content">
+                <span class="part-chip">Luminosidad</span>
+                <h4 class="part-title">Sensor de luz</h4>
+                <p class="part-desc">Detecta cambios bruscos de iluminación y regula el contraste y brillo de la matriz LED.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Luz LED (Derecha Centro) -->
+          <div class="watch-part-item part-right part-led" data-part="led" onmouseenter="highlightPart('led')" onmouseleave="unhighlightPart()">
+            <div class="part-line"></div>
+            <div class="part-card">
+              <div class="part-icon-wrap" style="--c: #f472b6">💜</div>
+              <div class="part-content">
+                <span class="part-chip">Matriz 5x5</span>
+                <h4 class="part-title">Luz LED</h4>
+                <p class="part-desc">Brinda retroalimentación visual inmediata con caritas, pulsaciones de corazón y ejercicios de respiración.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Sensor de Ubicación (Derecha Abajo) -->
+          <div class="watch-part-item part-right part-ubicacion" data-part="ubicacion" onmouseenter="highlightPart('ubicacion')" onmouseleave="unhighlightPart()">
+            <div class="part-line"></div>
+            <div class="part-card">
+              <div class="part-icon-wrap" style="--c: #22d3ee">📍</div>
+              <div class="part-content">
+                <span class="part-chip">Contexto Geográfico</span>
+                <h4 class="part-title">Sensor de ubicación</h4>
+                <p class="part-desc">Ayuda a identificar en qué lugares frecuentes (escuela, calle, casa) se desencadenan los episodios.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón para cerrar o alternar despliegue -->
+        <button class="close-parts-btn" id="close-parts-btn" onclick="toggleWatchComponents()" title="Cerrar partes">
+          ✕ Ocultar partes
+        </button>
+
+        <!-- Anillos orbitales -->
+        <div class="orbit orbit-1">
+          <div class="orbit-dot"></div>
+        </div>
+        <div class="orbit orbit-2">
+          <div class="orbit-dot"></div>
+        </div>
+        <div class="orbit orbit-3">
+          <div class="orbit-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ============ PROYECTO ============ -->
+  <section class="section" id="proyecto">
+    <!-- Anchor para scroll directo a imagenes -->
+    <div id="imagenes" style="position: absolute; top: -80px;"></div>
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">🌌 Nuestra misión</span>
+        <h2 class="section-title">¿De qué trata <span class="gradient-text">el proyecto</span>?</h2>
+        <p class="section-desc">
+          El seguimiento emocional de los pacientes depende casi siempre de las consultas presenciales.
+          Nosotros propusimos cambiar eso con tecnología accesible.
+        </p>
+
+        <!-- Solapas / Pestañas interactivas -->
+        <div class="tabs-wrapper">
+          <div class="tabs-nav" role="tablist">
+            <button class="tab-btn active" id="tab-btn-info" onclick="switchProjectTab('info')" role="tab"
+              aria-selected="true">
+              <span class="tab-icon">📋</span>
+              <span>Descripción del Proyecto</span>
+            </button>
+            <button class="tab-btn" id="tab-btn-images" onclick="switchProjectTab('images')" role="tab"
+              aria-selected="false">
+              <span class="tab-icon">📸</span>
+              <span>Imágenes del Reloj</span>
+              <span class="tab-badge">4 Fotos</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 1: Información / Descripción -->
+      <div class="tab-pane active" id="tab-pane-info">
+        <div class="cards-grid">
+          <div class="card card-glow" data-delay="0">
+            <div class="card-icon">🧠</div>
+            <h3 class="card-title">Problemática</h3>
+            <p class="card-text">El seguimiento del estado emocional de los pacientes depende principalmente de
+              consultas presenciales o reportes durante las sesiones. Los profesionales de salud mental <strong>no
+                siempre pueden conocer con precisión cuándo, con qué frecuencia y en qué circunstancias</strong> se
+              manifiestan determinados síntomas en la vida cotidiana. Esto es especialmente crítico en la adolescencia,
+              donde la ansiedad afecta el bienestar, el rendimiento académico y las relaciones interpersonales.</p>
+          </div>
+          <div class="card card-glow" data-delay="100">
+            <div class="card-icon">👥</div>
+            <h3 class="card-title">Sector Social</h3>
+            <p class="card-text">Nuestro trabajo está orientado a <strong>adolescentes que presentan cuadros de
+                ansiedad</strong>, con el objetivo de facilitar el registro de los momentos en que estos episodios
+              ocurren. La propuesta busca brindar al psicólogo una herramienta que permita recopilar información y
+              favorecer un seguimiento más preciso del estado emocional del paciente.</p>
+          </div>
+          <div class="card card-glow" data-delay="200">
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Solución</h3>
+            <p class="card-text">Un dispositivo basado en <strong>Micro:bit</strong> que permite registrar de manera
+              sencilla y rápida el estado emocional en diferentes momentos del día. Mediante botones e indicadores
+              visuales, el usuario señala si se siente ansioso. La información queda almacenada y puede ser consultada
+              por el psicólogo, aportando datos más objetivos y continuos que complementan las sesiones tradicionales.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 2: Galería de Fotos / Imágenes -->
+      <div class="tab-pane" id="tab-pane-images">
+        <div class="gallery-grid">
+          <div class="gallery-card card-glow" onclick="openLightbox(0)">
+            <div class="gallery-img-wrapper">
+              <img src="images/reloj-1.jpg" alt="CosmoClock micro:bit vista general" class="gallery-img"
+                loading="lazy" />
+              <div class="gallery-overlay">
+                <span class="zoom-btn">🔍 Ver en grande</span>
+              </div>
+            </div>
+            <div class="gallery-card-content">
+              <span class="gallery-tag">Diseño Wearable</span>
+              <h3 class="gallery-title">CosmoClock micro:bit</h3>
+              <p class="gallery-text">Vista en perspectiva del reloj con pulsera lila ergonómica y pantalla de matriz
+                LED con forma de corazón activo.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card card-glow" onclick="openLightbox(1)">
+            <div class="gallery-img-wrapper">
+              <img src="images/reloj-2.jpg" alt="Detalle de botones y pantalla" class="gallery-img" loading="lazy" />
+              <div class="gallery-overlay">
+                <span class="zoom-btn">🔍 Ver en grande</span>
+              </div>
+            </div>
+            <div class="gallery-card-content">
+              <span class="gallery-tag">Detalle & Controles</span>
+              <h3 class="gallery-title">Pulsadores y Micrófono</h3>
+              <p class="gallery-text">Acercamiento a los pulsadores de interacción A y B, micrófono frontal, botón de
+                encendido y pines de contacto.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card card-glow" onclick="openLightbox(2)">
+            <div class="gallery-img-wrapper">
+              <img src="images/reloj-3.jpg" alt="Acabado premium de CosmoClock" class="gallery-img" loading="lazy" />
+              <div class="gallery-overlay">
+                <span class="zoom-btn">🔍 Ver en grande</span>
+              </div>
+            </div>
+            <div class="gallery-card-content">
+              <span class="gallery-tag">Carcasa y Ensamble</span>
+              <h3 class="gallery-title">Acabado Galáctico</h3>
+              <p class="gallery-text">Estructura bicolor blanco y lavanda diseñada para ser cómoda, moderna y atractiva
+                para jóvenes y adolescentes.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card card-glow" onclick="openLightbox(3)">
+            <div class="gallery-img-wrapper">
+              <img src="images/reloj-4.jpg" alt="CosmoClock en muñeca e interfaz táctil" class="gallery-img"
+                loading="lazy" />
+              <div class="gallery-overlay">
+                <span class="zoom-btn">🔍 Ver en grande</span>
+              </div>
+            </div>
+            <div class="gallery-card-content">
+              <span class="gallery-tag">Interfaz en Muñeca</span>
+              <h3 class="gallery-title">Menú Táctil y Apps</h3>
+              <p class="gallery-text">Demostración en uso real mostrando el menú con juegos de relajación, chat
+                emocional, música y pulso.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CÓMO FUNCIONA ============ -->
+  <section class="section section-dark" id="como-funciona">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">⚙️ Tecnología</span>
+        <h2 class="section-title">Cómo <span class="gradient-text">funciona</span></h2>
+      </div>
+      <div class="steps-container">
+        <div class="step">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">🤲</div>
+            <h3>Sensores en la muñeca</h3>
+            <p>El micro:bit registra movimiento, temperatura y señales del cuerpo usando sus acelerómetro y sensores
+              integrados, capturando datos en tiempo real.</p>
+          </div>
+        </div>
+        <div class="step-connector">
+          <div class="connector-line"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">📡</div>
+            <h3>Procesamiento inteligente</h3>
+            <p>Los datos son analizados por el algoritmo programado en MicroPython. El dispositivo clasifica el estado
+              emocional usando umbrales calibrados.</p>
+          </div>
+        </div>
+        <div class="step-connector">
+          <div class="connector-line"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">💡</div>
+            <h3>Alerta visual y sonora</h3>
+            <p>La matriz LED del micro:bit muestra caras o íconos según el estado. Si detecta ansiedad alta, emite una
+              alerta y sugiere una técnica de respiración.</p>
+          </div>
+        </div>
+        <div class="step-connector">
+          <div class="connector-line"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">📊</div>
+            <h3>Registro de datos</h3>
+            <p>Los episodios quedan registrados para que el usuario o un profesional puedan analizar patrones y momentos
+              de mayor tensión a lo largo del día.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTRUCTIVO DE ARMADO ============ -->
+  <section class="section" id="instructivo">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">🛠️ Guía Paso a Paso</span>
+        <h2 class="section-title">Instructivo de <span class="gradient-text">Armado</span></h2>
+        <p class="section-desc">
+          Conocé el proceso completo de ensamblaje de CosmoClock. Preparamos una presentación interactiva detallada con diagramas de circuitos, montaje y calibración.
+        </p>
+      </div>
+
+      <div class="canva-showcase card-glow">
+        <div class="canva-showcase-content">
+          <div class="canva-badge">
+            <span class="canva-badge-dot"></span>
+            Presentación interactiva en Canva
+          </div>
+          <h3 class="canva-title">Manual de Construcción y Montaje del CosmoClock</h3>
+          <p class="canva-desc">
+            Encontrá la guía visual completa con diagramas de conexión para la placa <strong>micro:bit</strong>, ensamble de sensores (luz, sonido, movimiento y ubicación) y calibración del firmware en MicroPython.
+          </p>
+
+          <div class="canva-features-list">
+            <div class="canva-feature">
+              <span class="canva-feat-icon">⚡</span>
+              <div class="canva-feat-text">
+                <strong>Esquema de conexiones</strong>
+                <span>Diagramas claros pin a pin para micro:bit</span>
+              </div>
+            </div>
+            <div class="canva-feature">
+              <span class="canva-feat-icon">🪛</span>
+              <div class="canva-feat-text">
+                <strong>Ensamble de la carcasa</strong>
+                <span>Montaje físico y distribución de sensores</span>
+              </div>
+            </div>
+            <div class="canva-feature">
+              <span class="canva-feat-icon">💻</span>
+              <div class="canva-feat-text">
+                <strong>Carga de software</strong>
+                <span>Código y umbrales calibrados para ansiedad</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="canva-cta-wrap">
+            <a href="https://canva.link/d7ah7igmjgetevs" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-canva-action" id="btn-instructivo-canva">
+              <span class="canva-logo-symbol">🎨</span>
+              <span>Abrir Instructivo en Canva</span>
+              <span class="btn-icon">↗</span>
+            </a>
+            <span class="canva-hint">Se abrirá en una nueva pestaña · canva.link</span>
+          </div>
+        </div>
+
+        <div class="canva-showcase-visual">
+          <a href="https://canva.link/d7ah7igmjgetevs" target="_blank" rel="noopener noreferrer" class="canva-preview-card" title="Abrir instructivo en Canva">
+            <div class="canva-preview-header">
+              <div class="canva-window-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <span class="canva-url-pill">canva.link/d7ah7igmjgetevs</span>
+            </div>
+            <div class="canva-preview-body">
+              <div class="canva-preview-thumb">
+                <img src="images/reloj-1.jpg" alt="Instructivo CosmoClock" class="canva-thumb-img" />
+                <div class="canva-play-overlay">
+                  <div class="canva-play-btn">
+                    <span>↗</span>
+                  </div>
+                  <span class="canva-play-text">Ver en Canva</span>
+                </div>
+              </div>
+              <div class="canva-preview-footer">
+                <span class="canva-tag-mini">Instructivo Oficial</span>
+                <span class="canva-pages-mini">✦ Guía Interactiva</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REGISTRO ============ -->
+  <section class="section" id="registro">
+    <div id="datos" style="position: absolute; top: -80px;"></div>
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">📊 Monitoreo Continuo</span>
+        <h2 class="section-title"><span class="gradient-text">Registro</span></h2>
+        <p class="section-desc">
+          CosmoClock registra de forma constante variables clave del usuario y su entorno para brindar un seguimiento completo y objetivo del bienestar emocional.
+        </p>
+      </div>
+      <div class="features-grid">
+        <!-- 1. Emociones (Alegría y Tristeza) -->
+        <div class="feature-item feature-item-highlight">
+          <div class="feature-info">
+            <div class="feature-title-wrap">
+              <span class="feature-name">🎭 Emociones (Alegría y Tristeza)</span>
+              <span class="feature-desc-inline">Registro del estado anímico y polaridad emocional diaria</span>
+            </div>
+            <span class="feature-pct">Principal</span>
+          </div>
+          <div class="feature-bar-wrap">
+            <div class="feature-bar" style="--pct: 100%">
+              <div class="feature-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Movimiento -->
+        <div class="feature-item">
+          <div class="feature-info">
+            <div class="feature-title-wrap">
+              <span class="feature-name">🏃 Movimiento</span>
+              <span class="feature-desc-inline">Acelerómetro de agitación motora e inquietud</span>
+            </div>
+            <span class="feature-pct">88%</span>
+          </div>
+          <div class="feature-bar-wrap">
+            <div class="feature-bar" style="--pct: 88%">
+              <div class="feature-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Temperatura del ambiente -->
+        <div class="feature-item">
+          <div class="feature-info">
+            <div class="feature-title-wrap">
+              <span class="feature-name">🌡️ Temperatura del ambiente</span>
+              <span class="feature-desc-inline">Sensación térmica y confort del entorno</span>
+            </div>
+            <span class="feature-pct">78%</span>
+          </div>
+          <div class="feature-bar-wrap">
+            <div class="feature-bar" style="--pct: 78%">
+              <div class="feature-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Ruido -->
+        <div class="feature-item">
+          <div class="feature-info">
+            <div class="feature-title-wrap">
+              <span class="feature-name">📢 Ruido</span>
+              <span class="feature-desc-inline">Nivel de decibelios continuos y ambientes estresantes</span>
+            </div>
+            <span class="feature-pct">92%</span>
+          </div>
+          <div class="feature-bar-wrap">
+            <div class="feature-bar" style="--pct: 92%">
+              <div class="feature-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Ubicación -->
+        <div class="feature-item">
+          <div class="feature-info">
+            <div class="feature-title-wrap">
+              <span class="feature-name">📍 Ubicación</span>
+              <span class="feature-desc-inline">Contexto geográfico de los episodios (escuela, calle, casa)</span>
+            </div>
+            <span class="feature-pct">85%</span>
+          </div>
+          <div class="feature-bar-wrap">
+            <div class="feature-bar" style="--pct: 85%">
+              <div class="feature-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Horario -->
+        <div class="feature-item">
+          <div class="feature-info">
+            <div class="feature-title-wrap">
+              <span class="feature-name">⏱️ Horario</span>
+              <span class="feature-desc-inline">Marca de tiempo exacta y patrones de frecuencia horaria</span>
+            </div>
+            <span class="feature-pct">100%</span>
+          </div>
+          <div class="feature-bar-wrap">
+            <div class="feature-bar" style="--pct: 100%">
+              <div class="feature-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. Sonido -->
+        <div class="feature-item">
+          <div class="feature-info">
+            <div class="feature-title-wrap">
+              <span class="feature-name">🎙️ Sonido</span>
+              <span class="feature-desc-inline">Patrones acústicos y frecuencia de respiración por micrófono</span>
+            </div>
+            <span class="feature-pct">80%</span>
+          </div>
+          <div class="feature-bar-wrap">
+            <div class="feature-bar" style="--pct: 80%">
+              <div class="feature-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anxiety Meter Live Demo -->
+      <div class="demo-box">
+        <div class="demo-header">
+          <div class="demo-pulse"></div>
+          <span>Demo interactivo — Simulador de estado</span>
+        </div>
+        <div class="demo-controls">
+          <button class="state-btn active" id="btn-calm" onclick="setState('calm')">😌 Calma</button>
+          <button class="state-btn" id="btn-moderate" onclick="setState('moderate')">😟 Moderado</button>
+          <button class="state-btn" id="btn-high" onclick="setState('high')">😰 Alto</button>
+        </div>
+        <div class="demo-readout">
+          <div class="anxiety-meter">
+            <div class="meter-track">
+              <div class="meter-fill" id="meter-fill"></div>
+              <div class="meter-thumb" id="meter-thumb"></div>
+            </div>
+            <div class="meter-labels">
+              <span>Bajo</span>
+              <span>Moderado</span>
+              <span>Alto</span>
+            </div>
+          </div>
+          <div class="demo-face" id="demo-face">😌</div>
+          <div class="demo-suggestion" id="demo-suggestion">
+            Todo está bien. Tu ritmo cardíaco es estable.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EQUIPO ============ -->
+  <section class="section section-dark" id="equipo">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">👩‍🚀 Los astronautas</span>
+        <h2 class="section-title">Nuestro <span class="gradient-text">equipo</span></h2>
+        <p class="section-desc">Tres mentes brillantes unidas por un objetivo: que la tecnología sirva al bienestar.</p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar" style="--clr: #a78bfa">I</div>
+          <div class="team-ring" style="--clr: #a78bfa"></div>
+          <h3 class="team-name">Isa</h3>
+          <p class="team-role">Diseño & UX</p>
+          <p class="team-desc">Se encargó del diseño del dispositivo y la experiencia del usuario. Hizo que el reloj se
+            vea increíble.</p>
+          <div class="team-tags">
+            <span class="tag">Diseño</span>
+            <span class="tag">Creatividad</span>
+          </div>
+        </div>
+        <div class="team-card featured">
+          <div class="featured-badge">★ Líder</div>
+          <div class="team-avatar" style="--clr: #38bdf8">L</div>
+          <div class="team-ring" style="--clr: #38bdf8"></div>
+          <h3 class="team-name">Lulu</h3>
+          <p class="team-role">Programación & Lógica</p>
+          <p class="team-desc">Programó el micro:bit en MicroPython, diseñó el algoritmo de detección y calibró los
+            sensores.</p>
+          <div class="team-tags">
+            <span class="tag">MicroPython</span>
+            <span class="tag">micro:bit</span>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar" style="--clr: #34d399">P</div>
+          <div class="team-ring" style="--clr: #34d399"></div>
+          <h3 class="team-name">Pipe</h3>
+          <p class="team-role">Hardware & Documentación</p>
+          <p class="team-desc">Armó los circuitos, probó los sensores en situaciones reales y documentó el proceso
+            técnico.</p>
+          <div class="team-tags">
+            <span class="tag">Hardware</span>
+            <span class="tag">Circuitos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">
+        <span class="logo-icon">⟡</span>
+        <span class="logo-text">CosmoClock</span>
+      </div>
+      <p class="footer-text">
+        Proyecto tecnológico escolar · 2026<br />
+        <em>"Porque hasta en el cosmos, importa cómo te sentís."</em>
+      </p>
+      <div class="footer-stars">✦ ✧ ✦ ✧ ✦</div>
+    </div>
+  </footer>
+
+  <!-- ============ LIGHTBOX MODAL ============ -->
+  <div class="lightbox-modal" id="lightbox-modal" onclick="closeLightbox(event)">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <button class="lightbox-close" onclick="closeLightbox()" title="Cerrar (Esc)">&times;</button>
+      <button class="lightbox-arrow lightbox-prev" onclick="changeLightboxImage(-1)" title="Anterior (←)">&#10094;</button>
+      <div class="lightbox-image-wrap">
+        <img id="lightbox-img" src="" alt="CosmoClock Vista Detalle" />
+        <div class="lightbox-caption">
+          <span class="lightbox-badge" id="lightbox-badge"></span>
+          <h4 id="lightbox-title"></h4>
+          <p id="lightbox-desc"></p>
+        </div>
+      </div>
+      <button class="lightbox-arrow lightbox-next" onclick="changeLightboxImage(1)" title="Siguiente (→)">&#10095;</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
